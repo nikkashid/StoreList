@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">StoreListApp</string>
+    <string name="leaderBoard">LEADERBOARD</string>
+    <string name="sort_by">Sort By</string>
+    <string name="view_details">View Details</string>
+    <string name="gbp_100000">GBP : </string>
+    <string name="total_sales">Total Sales</string>
+    <string name="company_name">Company Name</string>
 </resources>

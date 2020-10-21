@@ -3,6 +3,7 @@ package com.nikhil.storelistapp.dependencyInjection
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.nikhil.storelistapp.networkApis.IStoreApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,16 +51,16 @@ object NetworkModule {
     @Singleton
     internal fun provideRetrofit(gson: Gson, okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("BuildConfig.BASE_URL")
+            .baseUrl("https://plobalapps.s3-ap-southeast-1.amazonaws.com/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
     }
 
-    /*@Provides
+    @Provides
     @Singleton
-    fun provideWeatherApi(retrofit: Retrofit): IWeatherApi {
-        return retrofit.create(IWeatherApi::class.java)
-    }*/
+    fun provideStoreApi(retrofit: Retrofit): IStoreApi {
+        return retrofit.create(IStoreApi::class.java)
+    }
 }

@@ -1,34 +1,26 @@
 package com.nikhil.storelistapp.entities
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
 data class StoreListResponse(
     val apps: List<App>
-) {
-    @Entity(tableName = "StoreDataTable")
+)
+{
+    //@Entity(tableName = "StoresTable")
     data class App(
         val currency: String,
         val data: Data,
         val money_format: String,
-        val name: String,
-        val cartKeyFk: Long
-
-    ) {
-        @PrimaryKey(autoGenerate = true)
-        val mainKey: Int? = null
-
+        val name: String
+    )
+    {
         data class Data(
             val add_to_cart: AddToCart,
             val downloads: Downloads,
             val sessions: Sessions,
             val total_sale: TotalSale
         ) {
-            @Entity(tableName = "DataTable")
             data class AddToCart(
-                @PrimaryKey val cartId: Long,
                 val month_wise: MonthWise,
-                val total: Int
+                val total: Long
             ) {
                 data class MonthWise(
                     val apr: Int,
@@ -82,5 +74,13 @@ data class StoreListResponse(
                 )
             }
         }
+
+        /*override fun compareTo(other: App): Int {
+            return this.data.add_to_cart.total.compareTo(other.data.add_to_cart.total)
+        }*/
+    }
+
+    override fun toString(): String {
+        return "StoreListResponse(apps=$apps)"
     }
 }
