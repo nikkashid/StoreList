@@ -2,16 +2,13 @@ package com.nikhil.storelistapp.entities
 
 data class StoreListResponse(
     val apps: List<App>
-)
-{
-    //@Entity(tableName = "StoresTable")
+) {
     data class App(
         val currency: String,
         val data: Data,
         val money_format: String,
         val name: String
-    )
-    {
+    ) {
         data class Data(
             val add_to_cart: AddToCart,
             val downloads: Downloads,
@@ -74,10 +71,6 @@ data class StoreListResponse(
                 )
             }
         }
-
-        /*override fun compareTo(other: App): Int {
-            return this.data.add_to_cart.total.compareTo(other.data.add_to_cart.total)
-        }*/
     }
 
     override fun toString(): String {

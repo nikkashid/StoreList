@@ -12,8 +12,7 @@ import javax.inject.Inject
 
 @SuppressLint("CheckResult")
 class StoreListRepository @Inject constructor(
-    private val iStoreApi: IStoreApi/*,
-    private val storeListDao: StoreDao*/
+    private val iStoreApi: IStoreApi
 ) {
 
     private val listResponse: MutableLiveData<List<StoreListResponse.App>> = MutableLiveData()

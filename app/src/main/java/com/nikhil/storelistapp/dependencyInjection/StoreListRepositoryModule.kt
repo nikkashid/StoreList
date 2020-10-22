@@ -15,10 +15,9 @@ object StoreListRepositoryModule {
     @Provides
     @Singleton
     fun provideWeatherRepository(
-        iStoreApi: IStoreApi/*,
-        storeListDao: StoreDao*/
+        iStoreApi: IStoreApi
     ): StoreListRepository {
-        return StoreListRepository(iStoreApi/*, storeListDao*/)
+        return StoreListRepository(iStoreApi)
     }
 
 }

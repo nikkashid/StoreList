@@ -4,9 +4,12 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.components.AxisBase
@@ -17,6 +20,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.nikhil.storelistapp.R
 import com.nikhil.storelistapp.databinding.ActivityMainBinding
 import com.nikhil.storelistapp.entities.StoreListResponse
 import com.nikhil.storelistapp.ui.adapter.StoreAdapter
@@ -32,7 +36,15 @@ class MainActivity : AppCompatActivity(), StoreAdapter.IClickListener {
     //Hilt ViewModel Injection
     private val homeViewModel: MainViewModel by viewModels()
 
+    private lateinit var storeAdapter: StoreAdapter
+
     var backPressedCount: Int = 0
+
+    var storeList: List<StoreListResponse.App> = ArrayList()
+
+    lateinit var slideUpAnimation: Animation
+
+    lateinit var slideDownAnimation: Animation
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,26 +55,81 @@ class MainActivity : AppCompatActivity(), StoreAdapter.IClickListener {
         mainActivity = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainActivity.root)
 
+        slideUpAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_up)
+        slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down)
+
         lifecycleScope.launch {
             homeViewModel.getStoreList()
         }
 
+        mainActivity.button.setOnClickListener {
+            setUpSortView()
+            mainActivity.button.isEnabled = false
+        }
+
         homeViewModel.observeResponse().observe(this, { response ->
-            val storeAdapter = StoreAdapter(this)
+            storeAdapter = StoreAdapter(this)
             mainActivity.rvStoreList.layoutManager = LinearLayoutManager(this)
             mainActivity.rvStoreList.hasFixedSize()
             mainActivity.rvStoreList.adapter = storeAdapter
-            storeAdapter.submitList(response)
+            storeList = response
+            storeAdapter.submitList(storeList.sortedBy { it.data.total_sale.total })
         })
 
+    }
+
+    private fun setUpSortView() {
+        backPressedCount++
+
+        mainActivity.inSortBy.rlSortedMain.startAnimation(slideUpAnimation)
+        mainActivity.inSortBy.rlSortedMain.visibility = View.VISIBLE
+
+        mainActivity.inSortBy.rlSortedMain.setOnClickListener { onBackPressed() }
+
+        mainActivity.inSortBy.llTs.setOnClickListener {
+            storeAdapter.submitList(storeList.sortedBy { it.data.total_sale.total })
+            removeImageVisibility()
+            mainActivity.inSortBy.ivTs.visibility = View.VISIBLE
+            onBackPressed()
+        }
+
+        mainActivity.inSortBy.llAtc.setOnClickListener {
+            storeAdapter.submitList(storeList.sortedBy { it.data.add_to_cart.total })
+            removeImageVisibility()
+            mainActivity.inSortBy.ivAtc.visibility = View.VISIBLE
+            onBackPressed()
+        }
+
+        mainActivity.inSortBy.llD.setOnClickListener {
+            storeAdapter.submitList(storeList.sortedBy { it.data.downloads.total })
+            removeImageVisibility()
+            mainActivity.inSortBy.ivDownload.visibility = View.VISIBLE
+            onBackPressed()
+        }
+
+        mainActivity.inSortBy.llUs.setOnClickListener {
+            storeAdapter.submitList(storeList.sortedBy { it.data.sessions.total })
+            removeImageVisibility()
+            mainActivity.inSortBy.ivUs.visibility = View.VISIBLE
+            onBackPressed()
+        }
+    }
+
+    private fun removeImageVisibility() {
+        mainActivity.inSortBy.ivAtc.visibility = View.INVISIBLE
+        mainActivity.inSortBy.ivDownload.visibility = View.INVISIBLE
+        mainActivity.inSortBy.ivTs.visibility = View.INVISIBLE
+        mainActivity.inSortBy.ivUs.visibility = View.INVISIBLE
     }
 
     override fun onClickListener(storeItem: StoreListResponse.App) {
 
         backPressedCount++
+        mainActivity.button.isEnabled = false
 
         mainActivity.inGraph.clGraphMain.setOnClickListener { onBackPressed() }
 
+        mainActivity.inGraph.clGraphMain.startAnimation(slideUpAnimation)
         mainActivity.inGraph.clGraphMain.visibility = View.VISIBLE
         mainActivity.inGraph.tvCompanyName.text = storeItem.name
         mainActivity.inGraph.tvSaleCount.text = storeItem.data.total_sale.total.toString()
@@ -133,7 +200,15 @@ class MainActivity : AppCompatActivity(), StoreAdapter.IClickListener {
     override fun onBackPressed() {
         if (backPressedCount == 1) {
             backPressedCount--
-            mainActivity.inGraph.clGraphMain.visibility = View.GONE
+            mainActivity.button.isEnabled = true
+            if (mainActivity.inGraph.clGraphMain.isVisible) {
+                mainActivity.inGraph.clGraphMain.startAnimation(slideDownAnimation)
+                mainActivity.inGraph.clGraphMain.visibility = View.GONE
+            }
+            if (mainActivity.inSortBy.rlSortedMain.isVisible) {
+                mainActivity.inSortBy.rlSortedMain.startAnimation(slideDownAnimation)
+                mainActivity.inSortBy.rlSortedMain.visibility = View.GONE
+            }
         } else {
             super.onBackPressed()
         }
